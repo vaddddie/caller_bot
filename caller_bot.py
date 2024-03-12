@@ -7,26 +7,12 @@ from roadmap_keys import *
 from logs import *
 import asyncio
 
-test_db_groups = ['qwe', 'reeg', 'errfe']
-test_db_members = {
-    test_db_groups[0]: ['@fewe', '@ewfwfew', '@ewfe'],
-    test_db_groups[1]: ['@hergfwe', '@ewfwfew', '@tyhtyhtye'],
-}
-
-test_db_chats = ['-1002052483237', '-4103901665', '-1001676661522']
-
 class caller_bot:
     def __init__(self, token: str) -> None:
         super().__init__()
         self.bot = AsyncTeleBot(token)
         self.listening()
-
         log_bot_start()
-        
-        self.test_state = 0
-        self.chat_id = 0
-        self.group_id = 0
-
         # /init there
         # .
         # .
@@ -53,8 +39,6 @@ class caller_bot:
 
         @self.bot.callback_query_handler(func=lambda call:True)
         async def callback_query(call) -> None:
-            # Routes
-
             # GROUPS
 
             if call.data == ADD_GROUP_CALLBACK:
@@ -87,19 +71,27 @@ class caller_bot:
                 await self.member_deleting(call.message.chat.id, call.from_user.id)
 
             if call.data == BACK_CALLBACK:
-                # await self.bot.delete_message(call.message.chat.id, call.message.message_id)
                 await self.chat_panel_view(call.message)
 
-            await self.bot.delete_message(call.message.chat.id, call.message.message_id)
+            try:
+                await self.bot.delete_message(call.message.chat.id, call.message.message_id)
+            except:
+                pass
 
         @self.bot.message_handler(content_types=['new_chat_members'])
-        async def test_func(message) -> None:
-            print(message.chat.id)
-        # Изменить название функции
-        # Настроить внесение в базу данных
-        # Сделать проверку айдишника входящего и дополнить функцией выхода
-
-        # Сделать проверку на выходцев из чата чтобы обнулить им чат_айди
+        async def invation_to_the_chat(message) -> None:
+            new_members:[] = message.new_chat_members
+            bot_id = (await self.bot.get_me()).id
+            for i in range(len(new_members)):
+                if (new_members[i].id == bot_id):
+                    add_new_chat(message.chat.id)
+                    return
+        
+        @self.bot.message_handler(content_types=['left_chat_member'])
+        async def exclusion_from_the_chat(message) -> None:
+            if (message.left_chat_member.id == (await self.bot.get_me()).id):
+                delete_chat(message.chat.id)
+            return
 
         @self.bot.message_handler(content_types='text', chat_types=['private'])
         async def echo_message(message) -> None:
@@ -148,6 +140,18 @@ class caller_bot:
                     return
                 await self.group_renamed(message) # Group renaming
 
+        @self.bot.message_handler(content_types='text', chat_types=['group','supergroup'])
+        async def echo_message1(message) -> None:
+            text = message.text.split()
+            groups:[] = get_groups_by_idChat(chat_id_2_idChat(message.chat.id))
+
+            for group in groups:
+                for word in text:
+                    if word == '@' + group:
+                        members = get_all_members_by_idGroup(get_idGroup(chat_id_2_idChat(message.chat.id), group))
+                        await self.bot.reply_to(message, ' '.join(members))
+                        return
+
     async def chat_selecting(self, chat_id:int, user_id:int) -> None:
         chats = await self.get_all_chats(user_id)
         
@@ -184,7 +188,7 @@ class caller_bot:
         return
 
     async def group_added(self, message:types.Message) -> None:
-        set_user_state(message.from_user.id, 0)
+        set_user_state(message.from_user.id, 0) # Добавить ограничение на пробелы
         
         if not create_new_group(get_user_chat(message.from_user.id), message.text):
             await self.bot.send_message(message.chat.id, 'Ошибка, попробуй ещё раз..')
@@ -274,8 +278,6 @@ class caller_bot:
         for i in range(len(members)):
             if members[i][0] != '@':
                 members[i] = '@' + members[i]
-            # if members[i] in get_all_members_by_idGroup(get_user_group(message.from_user.id)):
-            #     members.pop(i)
 
         add_members(get_user_group(message.from_user.id), members)
 

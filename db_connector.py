@@ -65,6 +65,10 @@ def idChat_2_chat_id(idChat:int) -> str:
     result = sql_exec(f'SELECT `chat_id` FROM `Chat` WHERE `idChat` = \'{idChat}\' LIMIT 1;')
     return result[0][0]
 
+def chat_id_2_idChat(chat_id:str) -> int:
+    result = sql_exec(f'SELECT `idChat` FROM `Chat` WHERE `chat_id` = \'{chat_id}\' LIMIT 1;')
+    return result[0][0]
+
 def get_all_idChats() -> []:
     tmp = sql_exec(f'SELECT `idChat` FROM `Chat`;')
 
@@ -111,6 +115,10 @@ def get_groups_by_idChat(idChat:int) -> []:
 
     return result
 
+def get_idGroup(idChat:int, group_title:str) -> int:
+    result = sql_exec(f'SELECT `idGroup` FROM `Group` WHERE `idChat` = \'{idChat}\' AND `group_title` = \'{group_title}\' LIMIT 1;`')
+    return result[0][0]
+
 def delete_group(idChat:int, group_title:str) -> None:
     sql_commit(f'DELETE FROM `Group` WHERE `idChat` = \'{idChat}\' AND `group_title` = \'{group_title}\';')
     return
@@ -135,4 +143,17 @@ def delete_member(idGroup:int, member_title:str) -> None:
     sql_commit(f'DELETE FROM `Member` WHERE `idGroup` = \'{idGroup}\' AND `member_title` = \'{member_title}\';')
     return
 
+def add_new_chat(chat_id:str) -> None:
+    try:
+        sql_commit(f'INSERT INTO `Chat`(`chat_id`) VALUES (\'{chat_id}\');')
+    except:
+        pass
+    return
 
+def delete_chat(chat_id:str) -> None:
+    sql_commit(f'DELETE FROM `Chat` WHERE `chat_id` = \'{chat_id}\';')
+    try:
+        pass
+    except:
+        pass
+    return
