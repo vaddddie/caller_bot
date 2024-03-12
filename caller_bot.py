@@ -141,13 +141,14 @@ class caller_bot:
                 await self.group_renamed(message) # Group renaming
 
         @self.bot.message_handler(content_types='text', chat_types=['group','supergroup'])
-        async def echo_message1(message) -> None:
+        async def echo_message_from_chat(message) -> None:
             text = message.text.split()
             groups:[] = get_groups_by_idChat(chat_id_2_idChat(message.chat.id))
 
             for group in groups:
                 for word in text:
                     if word == '@' + group:
+                        log_message_reseived('group', message)
                         members = get_all_members_by_idGroup(get_idGroup(chat_id_2_idChat(message.chat.id), group))
                         await self.bot.reply_to(message, ' '.join(members))
                         return
