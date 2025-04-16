@@ -5,3 +5,12 @@
  - Асинхронной обработкой коллбэков
  - С телеграм API
  - ООП
+
+## Результат
+
+![изображение](https://github.com/user-attachments/assets/010958d8-467b-4bcf-9f27-4074729a516b)
+
+![изображение](https://github.com/user-attachments/assets/4cf77f6a-9777-42af-a91a-2e7e924e65cf)
+
+![изображение](https://github.com/user-attachments/assets/ad7cc029-2bea-4e19-bccd-be0650c54fe2)
+
